@@ -26,7 +26,8 @@ def main():
 
 def run(bed_file, composite_bed):
     logger = configure_logger(logger_file)
-    compare_coding = asses_region(bed_file, composite_bed)
+    index_dict = index_composite_bed(composite_bed)
+    compare_coding = asses_region(bed_file, index_dict, logger)
     
 
 def parse_args():
@@ -90,7 +91,20 @@ class bed_file():
             return self.exon
 
 
-def asses_region(gene_bed, composite_bed):
+def index_composite_bed(composite_bed):
+    index_composite_dict = {}
+    headers = ['chrom', 'start', 'stop', 'gene', 'transcript', 'exon']
+    reader = csv.DictReader(composite_bed, delimiter='\t', fieldnames=headers)
+    for row in reader:
+        trascript = row['transcript']
+        exon = row['exon']
+        key = trascript + ':' + exon
+        value = [row['start'], row['stop']]
+        index_composite_dict[key] = value
+    return index_composite_dict
+
+
+def asses_region(gene_bed, index_composite_dict, logger):
     for raw_line in gene_bed:
         value = raw_line.strip()
         parse_bed = bed_file(value)
@@ -99,24 +113,30 @@ def asses_region(gene_bed, composite_bed):
         start = parse_bed.bed_start()
         stop = parse_bed.bed_stop()
         exon = parse_bed.bed_exon()
-        index_composite_bed(composite_bed, transcript, exon)
-#        comp_start, comp_stop = index_composite_bed(composite_bed, transcript, exon)
-#        print start, stop, exon, transcript
-#        print "comp " + comp_start, "comp " + comp_stop
-
-
-def index_composite_bed(composite_bed, transcript, exon):
-    headers = ['chrom', 'start', 'stop', 'gene', 'transcript', 'exon']
-    reader = csv.DictReader(composite_bed, delimiter='\t', fieldnames=headers)
-    for row in reader:
-        if row['transcript'] == transcript:
-            if row['exon'] == exon or row['exon'] == exon.split('Ex')[1]:
-                print exon,  exon.split('Ex')[1]
-#                print row['transcript'], row['exon']
-#            comp_start = row['start']
-#            comp_stop = row['stop']
-#            return comp_start, comp_stop
+        gene = parse_bed.bed_gene()
+        gene_key = transcript + ':' + exon
+        if index_composite_dict[gene_key]:
+            check_position = compare_region(start, stop, index_composite_dict[gene_key][0], 
+                                            index_composite_dict[gene_key][1], gene, transcript, exon, logger)
         
+
+
+def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_stop, gene, transcript, exon, logger):
+    if int(gene_cds_start) <= int(trans_cds_start):
+        pass
+    else:
+        logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene, 
+                                                                                                            exon,
+                                                                                                            trans_cds_start, 
+                                                                                                            transcript))
+    if int(gene_cds_stop) >= int(trans_cds_stop):
+        pass
+    else:
+        logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
+                                                                                                            exon,
+                                                                                                            trans_cds_start,
+                                                                                                            transcript))
+
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ import argparse
 import csv
 import create_composite_bed
 import subprocess
+import shutil
 
 outdir = os.getcwd()
 intersect_bed = '/usr/local/biotools/bedtools/2.20.1/bin/intersectBed'
@@ -39,22 +40,24 @@ def annotate_bed_file(bed_file, bed2):
     p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
     out, err = p.communicate()
     for something in out.split('\n'):
-        value = something.strip().split('\t')
-        chrom = value[0]
-        start = value[1]
-        stop = value[2]
-        gene = value[6]
-#        bed_genes.add(gene)
-        transcript = value[7]
-        exon = value[8]
-        gene_dir = make_gene_dir(gene)
-        gene_bed = gene_dir + '/' + gene + '.bed'
-        gene_bed_list.append(gene_bed)
-        with open(gene_bed, 'a+') as fout:
-            if exon.startswith('Ex'):
-                fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + exon + '\n')
-            else:
-                fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + 'Ex' + exon + '\n')
+        try:
+            value = something.strip().split('\t')
+            chrom = value[0]
+            start = value[1]
+            stop = value[2]
+            gene = value[6]
+            transcript = value[7]
+            exon = value[8]
+            gene_dir = make_gene_dir(gene)
+            gene_bed = gene_dir + '/' + gene + '.bed'
+            gene_bed_list.append(gene_bed)
+            with open(gene_bed, 'a+') as fout:
+                if exon.startswith('Ex'):
+                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + exon + '\n')
+                else:
+                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + 'Ex' + exon + '\n')
+        except IndexError:
+            pass
     return gene_bed_list 
 
 

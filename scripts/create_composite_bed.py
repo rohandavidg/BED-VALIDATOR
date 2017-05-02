@@ -57,9 +57,10 @@ def parse_gtf(gtf_file, outfile):
                     exon_number = row[8].split(';')[2]
                     exon = shlex.split(exon_number.split(" ")[2])[0]
                     gene_name = row[8].split(';')[3]
+                    strand = row[6]
                     gene = shlex.split(gene_name.split(" ")[2])[0]
                     transcript = shlex.split(transcript_id.split(" ")[2])[0]
-                    out = (chrom, start, stop, gene, transcript, 'Ex' + exon)
+                    out = (chrom, start, stop, gene, transcript, 'Ex' + exon, strand)
                     fout.write('\t'.join(str(i) for i in out) + '\n')
                 else:
                     pass
