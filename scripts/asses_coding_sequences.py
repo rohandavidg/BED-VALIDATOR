@@ -134,11 +134,9 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
             pass
         else:
             if transcript.startswith('NM_'):
-                cds_start = transcript_cds_dict[transcript][0]
-                cds_stop =  transcript_cds_dict[transcript][1]
-                if int(trans_cds_start) < cds_start < cds_stop or int(trans_cds_start) > cds_start > cds_stop:
-                    pass
-                else:
+                cds_start = int(transcript_cds_dict[transcript][0])
+                cds_stop =  int(transcript_cds_dict[transcript][1])
+                if cds_start <= int(gene_cds_start) <= cds_stop:
                     logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
                                                                                                                         exon,
                                                                                                                         trans_cds_start,
@@ -153,12 +151,10 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
             pass
         else:
             if transcript.startswith("NM_"):
-                cds_start = transcript_cds_dict[transcript][0]
-                cds_stop =  transcript_cds_dict[transcript][1]
-                if int(trans_cds_stop) >  cds_start > cds_stop or int(trans_cds_stop) < cds_start < cds_stop:
-                    pass
-                else:
-                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                cds_start = int(transcript_cds_dict[transcript][0])
+                cds_stop =  int(transcript_cds_dict[transcript][1])
+                if cds_start <= int(gene_cds_stop) <=  cds_stop:
+                    logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
                                                                                                                         exon,
                                                                                                                         trans_cds_stop,
                                                                                                                         transcript))
@@ -172,14 +168,12 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
             pass
         else:
             if transcript.startswith("NM_"):
-                cds_start = transcript_cds_dict[transcript][0]
-                cds_stop =  transcript_cds_dict[transcript][1]
-                if int(trans_cds_start) >  cds_start > cds_stop or int(trans_cds_start) < cds_start < cds_stop:
-                    pass
-                else:
-                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                cds_start = int(transcript_cds_dict[transcript][0])
+                cds_stop =  int(transcript_cds_dict[transcript][1])
+                if cds_start <= int(gene_cds_start) <= cds_stop:
+                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
                                                                                                                         exon,
-                                                                                                                        trans_cds_stop,
+                                                                                                                        trans_cds_start,
                                                                                                                         transcript))
             else:
                 logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
@@ -190,12 +184,13 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
             pass
         else:
             if transcript.startswith("NM_"):
-                cds_start = transcript_cds_dict[transcript][0]
-                cds_stop =  transcript_cds_dict[transcript][1]
-                if int(trans_cds_stop) >  cds_start > cds_stop or int(trans_cds_stop) < cds_start < cds_stop:
-                    pass
-                else:
-                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                cds_start = int(transcript_cds_dict[transcript][0])
+                cds_stop =  int(transcript_cds_dict[transcript][1])
+                print cds_start
+                print int(gene_cds_stop)
+                print cds_stop
+                if cds_start <= int(gene_cds_stop) <= cds_stop:
+                    logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
                                                                                                                         exon,
                                                                                                                         trans_cds_stop,
                                                                                                                         transcript))
@@ -204,7 +199,6 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
                                                                                                                    exon,
                                                                                                                    trans_cds_stop,
                                                                                                                    transcript))
-
 
 
 if __name__ == "__main__":
