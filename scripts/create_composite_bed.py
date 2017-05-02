@@ -20,8 +20,8 @@ refflat_file = "/dlmp/sandbox/reference/UCSC/refFlat"
 outdir = os.getcwd()
 
 def main():
-    run()
-
+    transcipt_cds_dict = run()
+    return transcipt_cds_dict
 
 def run():
     ensemble_bed = 'ENSEMBL_cds_only.bed'
@@ -34,14 +34,17 @@ def run():
         os.remove(refflat_final)
         parse_refflat_file = GetRefFlat(outdir)
         os.remove('refFlat.bed')
+        return parse_refflat_file
     else:
         parse_refflat_file = GetRefFlat(outdir)
         os.remove('refFlat.bed')
+        return parse_refflat_file
     if os.path.isfile('CGSL_composite.bed'):
         os.remove('CGSL_composite.bed')
         create_composite_bed = cat_files(ensemble_bed, refflat_final)
     else:
         create_composite_bed = cat_files(ensemble_bed, refflat_final)
+    
 
 def parse_gtf(gtf_file, outfile):
     with gzip.open(gtf_file) as csvfile, open(outfile, 'w') as fout:

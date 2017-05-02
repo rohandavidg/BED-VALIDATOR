@@ -81,6 +81,6 @@ def remove_gene_dir():
 
 
 if __name__  == "__main__":
-    composite_bed = create_composite_bed.main()    
+    transcript_cds_dict = create_composite_bed.main()
     assert os.path.isfile('CGSL_composite.bed')
     main('CGSL_composite.bed')

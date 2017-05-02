@@ -13,21 +13,21 @@ import logging
 import time
 import datetime
 from collections import defaultdict
-
+import create_composite_bed
 
 TMP_OUT_DIR=os.getcwd()
 logger_file = "bed_validation"
 
 
-def main():
+def main(transcript_cds_dict):
     args = parse_args()
-    run(args.bed_file, args.composite_bed)
+    run(args.bed_file, args.composite_bed, transcript_cds_dict)
 
 
-def run(bed_file, composite_bed):
+def run(bed_file, composite_bed, transcript_cds_dict):
     logger = configure_logger(logger_file)
     index_dict = index_composite_bed(composite_bed)
-    compare_coding = asses_region(bed_file, index_dict, logger)
+    compare_coding = asses_region(bed_file, index_dict, transcript_cds_dict, logger)
     
 
 def parse_args():
@@ -65,6 +65,7 @@ class bed_file():
         self.gene = value[3].strip()
         self.transcript = value[4].strip()
         self.exon =  value[5].strip()
+        self.strand =  value[6].strip()
 
     def __iter__(self):
         return self
@@ -84,27 +85,32 @@ class bed_file():
     def bed_transcript(self):
         return self.transcript
 
+
     def bed_exon(self):
         if not self.exon.startswith('Ex'):
             return 'Ex' + self.exon
         else:
             return self.exon
 
+    def bed_strand(self):
+        return self.strand
+
 
 def index_composite_bed(composite_bed):
     index_composite_dict = {}
-    headers = ['chrom', 'start', 'stop', 'gene', 'transcript', 'exon']
+    headers = ['chrom', 'start', 'stop', 'gene', 'transcript', 'exon', 'strand']
     reader = csv.DictReader(composite_bed, delimiter='\t', fieldnames=headers)
     for row in reader:
         trascript = row['transcript']
         exon = row['exon']
+        strand = row['strand']
         key = trascript + ':' + exon
         value = [row['start'], row['stop']]
         index_composite_dict[key] = value
     return index_composite_dict
 
 
-def asses_region(gene_bed, index_composite_dict, logger):
+def asses_region(gene_bed, index_composite_dict, transcript_cds_dict, logger):
     for raw_line in gene_bed:
         value = raw_line.strip()
         parse_bed = bed_file(value)
@@ -114,30 +120,94 @@ def asses_region(gene_bed, index_composite_dict, logger):
         stop = parse_bed.bed_stop()
         exon = parse_bed.bed_exon()
         gene = parse_bed.bed_gene()
-        gene_key = transcript + ':' + exon
+        strand = parse_bed.bed_strand()
+        gene_key = transcript + ':' + exon 
         if index_composite_dict[gene_key]:
             check_position = compare_region(start, stop, index_composite_dict[gene_key][0], 
-                                            index_composite_dict[gene_key][1], gene, transcript, exon, logger)
-        
+                                            index_composite_dict[gene_key][1], gene, transcript, exon, strand, transcript_cds_dict, logger)
+                                            
+    
 
+def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_stop, gene, transcript, exon, strand, transcript_cds_dict, logger):
+    if strand == '+':
+        if int(gene_cds_start) <= int(trans_cds_start) <= int(gene_cds_stop):
+            pass
+        else:
+            if transcript.startswith('NM_'):
+                cds_start = transcript_cds_dict[transcript][0]
+                cds_stop =  transcript_cds_dict[transcript][1]
+                if int(trans_cds_start) < cds_start < cds_stop or int(trans_cds_start) > cds_start > cds_stop:
+                    pass
+                else:
+                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
+                                                                                                                        exon,
+                                                                                                                        trans_cds_start,
+                                                                                                                        transcript))
+ 
+            else:
+                logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene, 
+                                                                                                                exon,
+                                                                                                                trans_cds_start, 
+                                                                                                                transcript))
+        if int(gene_cds_stop) >= int(trans_cds_stop):
+            pass
+        else:
+            if transcript.startswith("NM_"):
+                cds_start = transcript_cds_dict[transcript][0]
+                cds_stop =  transcript_cds_dict[transcript][1]
+                if int(trans_cds_stop) >  cds_start > cds_stop or int(trans_cds_stop) < cds_start < cds_stop:
+                    pass
+                else:
+                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                                                                                                                        exon,
+                                                                                                                        trans_cds_stop,
+                                                                                                                        transcript))
+            else:
+                logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                                                                                                                   exon,
+                                                                                                                   trans_cds_stop,
+                                                                                                                   transcript))
+    else:
+        if int(gene_cds_start) <= int(trans_cds_start) <= int(gene_cds_stop):
+            pass
+        else:
+            if transcript.startswith("NM_"):
+                cds_start = transcript_cds_dict[transcript][0]
+                cds_stop =  transcript_cds_dict[transcript][1]
+                if int(trans_cds_start) >  cds_start > cds_stop or int(trans_cds_start) < cds_start < cds_stop:
+                    pass
+                else:
+                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                                                                                                                        exon,
+                                                                                                                        trans_cds_stop,
+                                                                                                                        transcript))
+            else:
+                logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
+                                                                                                                    exon,
+                                                                                                                    trans_cds_start,
+                                                                                                                    transcript))
+        if int(gene_cds_stop) >= int(trans_cds_stop):
+            pass
+        else:
+            if transcript.startswith("NM_"):
+                cds_start = transcript_cds_dict[transcript][0]
+                cds_stop =  transcript_cds_dict[transcript][1]
+                if int(trans_cds_stop) >  cds_start > cds_stop or int(trans_cds_stop) < cds_start < cds_stop:
+                    pass
+                else:
+                    logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                                                                                                                        exon,
+                                                                                                                        trans_cds_stop,
+                                                                                                                        transcript))
+            else:
+                logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
+                                                                                                                   exon,
+                                                                                                                   trans_cds_stop,
+                                                                                                                   transcript))
 
-def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_stop, gene, transcript, exon, logger):
-    if int(gene_cds_start) <= int(trans_cds_start):
-        pass
-    else:
-        logger.debug("start {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene, 
-                                                                                                            exon,
-                                                                                                            trans_cds_start, 
-                                                                                                            transcript))
-    if int(gene_cds_stop) >= int(trans_cds_stop):
-        pass
-    else:
-        logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_start, gene,
-                                                                                                            exon,
-                                                                                                            trans_cds_start,
-                                                                                                            transcript))
 
 
 if __name__ == "__main__":
-    main()
+    transcript_cds_dict = create_composite_bed.main()
+    main(transcript_cds_dict)
 
