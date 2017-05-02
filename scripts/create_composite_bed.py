@@ -10,8 +10,7 @@ import csv
 import gzip
 import pprint
 import sys
-sys.path.append("/dlmp/sandbox/cgslIS/Jag/WESTA/")
-from GetRefFlat import GetRefFlat
+import GetRefFlat
 import subprocess
 import shlex
 
