@@ -48,14 +48,15 @@ def annotate_bed_file(bed_file, bed2):
             gene = value[6]
             transcript = value[7]
             exon = value[8]
+            strand =  value[9]
             gene_dir = make_gene_dir(gene)
             gene_bed = gene_dir + '/' + gene + '.bed'
             gene_bed_list.append(gene_bed)
             with open(gene_bed, 'a+') as fout:
                 if exon.startswith('Ex'):
-                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + exon + '\n')
+                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + exon + '\t' + strand + '\n')
                 else:
-                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + 'Ex' + exon + '\n')
+                    fout.write(chrom + '\t' + str(start) + '\t' + str(stop) + '\t' + gene + '\t' + transcript + '\t' + 'Ex' + exon + '\t' + strand + '\n')
         except IndexError:
             pass
     return gene_bed_list 
