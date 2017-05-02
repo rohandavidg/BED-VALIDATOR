@@ -15,8 +15,7 @@ from GetRefFlat import GetRefFlat
 import subprocess
 import shlex
 
-gtf_file = "/dlmp/sandbox/reference/ENSEMBL/build75/Homo_sapiens.GRCh37.75.gtf.gz"
-refflat_file = "/dlmp/sandbox/reference/UCSC/refFlat"
+gtf_file = "../files/Homo_sapiens.GRCh37.75.gtf.gz"
 outdir = os.getcwd()
 
 def main():
