@@ -1,0 +1,9 @@
+ENSEMBLE_BUILD_PATH=""
+SGE="/usr/local/biotools/oge/ge2011.11/bin/linux-x64/qsub"
+QUEUE="sandbox.q"
+EMAIL="gnanaolivu.rohandavid@mayo.edu"
+OUTPUT_DIRECTORY="/dlmp/sandbox/cgslIS/rohan/bed_validation_tool"
+h_vmem="18G"
+h_stack="20M"
+PYTHON="/dlmp/sandbox/cgslIS/rohan/Python-2.7.11/python"
+

@@ -10,11 +10,11 @@ import csv
 import gzip
 import pprint
 import sys
-import GetRefFlat
+from GetRefFlat import GetRefFlat
 import subprocess
 import shlex
 
-gtf_file = "../files/Homo_sapiens.GRCh37.75.gtf.gz"
+gtf_file = "/dlmp/sandbox/cgslIS/rohan/cgsl_code/bin/BED-VALIDATOR/files/Homo_sapiens.GRCh37.75.gtf.gz"
 outdir = os.getcwd()
 
 def main():
