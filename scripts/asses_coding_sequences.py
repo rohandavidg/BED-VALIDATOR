@@ -19,14 +19,15 @@ TMP_OUT_DIR=os.getcwd()
 logger_file = "bed_validation"
 
 
-def main(transcript_cds_dict):
+def main():
     args = parse_args()
-    run(args.bed_file, args.composite_bed, transcript_cds_dict)
+    run(args.bed_file, args.composite_bed,args.transcript_mapping)
 
 
-def run(bed_file, composite_bed, transcript_cds_dict):
+def run(bed_file, composite_bed, transcript_mapping):
     logger = configure_logger(logger_file)
     index_dict = index_composite_bed(composite_bed)
+    transcript_cds_dict = create_dict(transcript_mapping)
     compare_coding = asses_region(bed_file, index_dict, transcript_cds_dict, logger)
     
 
@@ -36,6 +37,8 @@ def parse_args():
                         help="path to gene bed file", required=True)
     parser.add_argument('-c', dest='composite_bed', type=argparse.FileType('r'),
                         help="path to composite bed file", required=True)
+    parser.add_argument('-t', dest='transcript_mapping', type=argparse.FileType('r'),
+                        help='transcript cds tsv file', required=True)
     args = parser.parse_args()
     return args
 
@@ -108,6 +111,21 @@ def index_composite_bed(composite_bed):
         value = [row['start'], row['stop']]
         index_composite_dict[key] = value
     return index_composite_dict
+
+
+def remove_trash(somefile):
+    if os.path.isfile(somefile):
+        os.remove(somefile)
+    else:
+        pass
+
+
+def create_dict(mapping_file):
+    mapping_dict = {}
+    for raw_line in mapping_file:
+        value = raw_line.strip().split('\t')
+        mapping_dict[value[0]] = [value[1], value[2]]
+    return mapping_dict
 
 
 def asses_region(gene_bed, index_composite_dict, transcript_cds_dict, logger):
@@ -186,9 +204,6 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
             if transcript.startswith("NM_"):
                 cds_start = int(transcript_cds_dict[transcript][0])
                 cds_stop =  int(transcript_cds_dict[transcript][1])
-                print cds_start
-                print int(gene_cds_stop)
-                print cds_stop
                 if cds_start <= int(gene_cds_stop) <= cds_stop:
                     logger.debug("stop {0} for gene {1} for exon {2} should be {3} according to transcript {4}".format(gene_cds_stop, gene,
                                                                                                                         exon,
@@ -202,6 +217,5 @@ def compare_region(gene_cds_start, gene_cds_stop, trans_cds_start, trans_cds_sto
 
 
 if __name__ == "__main__":
-    transcript_cds_dict = create_composite_bed.main()
-    main(transcript_cds_dict)
+    main()
 

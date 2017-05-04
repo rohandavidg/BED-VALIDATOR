@@ -22,32 +22,38 @@ def main():
     return transcipt_cds_dict
 
 def run():
-    ensemble_bed = 'ENSEMBL_cds_only.bed'
+    ensemble_bed = outdir + "/ENSEMBL_cds_only.bed"
+    refflat_final = outdir + "/FinalRefFlat.bed"
+    composite_bed = outdir + "/CGSL_composite.bed"    
     if os.path.isfile(ensemble_bed):
         pass
     else:
         parsed_gtf_file = parse_gtf(gtf_file, ensemble_bed)
-    refflat_final = 'FinalRefFlat.bed'
+
     if os.path.isfile(refflat_final):
         os.remove(refflat_final)
         parse_refflat_file = GetRefFlat(outdir)
         os.remove('refFlat.bed')
-        return parse_refflat_file
+        create_composite_bed(composite_bed, ensemble_bed, refflat_final)
+        transcipt_cds_file = write_out_cds(parse_refflat_file)
     else:
         parse_refflat_file = GetRefFlat(outdir)
         os.remove('refFlat.bed')
-        return parse_refflat_file
-    if os.path.isfile('CGSL_composite.bed'):
-        os.remove('CGSL_composite.bed')
-        create_composite_bed = cat_files(ensemble_bed, refflat_final)
+        create_composite_bed(composite_bed, ensemble_bed, refflat_final)
+        transcipt_cds_file = write_out_cds(parse_refflat_file)
+
+
+def create_composite_bed(composite_bed_path, file1, file2):
+    if os.path.isfile(composite_bed_path):
+        os.remove(composite_bed_path)
+        cat_files(composite_bed_path, file1, file2)
     else:
-        create_composite_bed = cat_files(ensemble_bed, refflat_final)
+        cat_files(composite_bed_path, file1, file2)
     
 
 def parse_gtf(gtf_file, outfile):
     with gzip.open(gtf_file) as csvfile, open(outfile, 'w') as fout:
         reader = csv.reader(csvfile, delimiter='\t')
-        print  reader
         for row in reader:
             try:
                 if row[2] == 'CDS':
@@ -68,10 +74,10 @@ def parse_gtf(gtf_file, outfile):
             except IndexError:
                 pass
 
-def cat_files(file1, file2):
+def cat_files(bed_path, file1, file2):
     assert os.path.isfile(file1)
     assert os.path.isfile(file2)
-    with open('CGSL_composite.bed', 'w+') as fout:
+    with open(bed_path, 'w+') as fout:
         for f in [file1, file2]:
             with open(f, 'r') as fin:
                 for raw_line in fin:
@@ -82,6 +88,13 @@ def cat_files(file1, file2):
                         else:
                             fout.write(value + '\n')
 
+
+def write_out_cds(transcript_dict):
+    with open('Refeseq_transcipt_cds.tsv', 'w') as fout:
+        for k, v in transcript_dict.items():
+            fout.write(k +'\t' + v[0] + '\t' + v[1] + '\n')
+            
+                                              
 
 if __name__ == "__main__":
     main()

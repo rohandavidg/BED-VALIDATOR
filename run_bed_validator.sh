@@ -85,22 +85,25 @@ check_variable "CONFIG_FILE:h_stack" $h_stack
 check_variable "CONFIG_FILE:PYTHON" $PYTHON
 
 COMPOSIT_BED=$OUTPUT_DIRECTORY/CGSL_composite.bed
-VALIDATION_DIR=$OUTPUT_DIRECTORY/VALIDATION
+VALIDATION_DIR=$OUTPUT_DIRECTORY/VALIDATION/
 ASSES_BED=$SCRIPT_DIR/scripts/asses_coding_sequences.py
-bed_file=`ls $VALIDATION_DIR/*/*.bed`
-for bed in $bed_file;do
-    base_dir=$(dirname $bed)
-    base=$(basename $bed)
-    echo $base_dir
+REFSEQ_MAPPING=$OUTPUT_DIRECTORY/Refeseq_transcipt_cds.tsv
+bed_file=$(find "$VALIDATION_DIR" -name "*.bed")
+for gene_bed in $bed_file;do
+    base_dir=$(dirname $gene_bed)
+    base=$(basename $gene_bed)
     pushd $base_dir > /dev/null
     if [ -d $base_dir/logs ];then
 	mkdir $base_dir/logs
     else
 	true
     fi
-    sleep 2s
-    $SGE -M $EMAIL -m e -l h_vmem=$h_vmem -l h_stack=$h_stack -b y -V -N validate_$base -wd $base_dir -o $base_dir/logs -e $base_dir/logs $PYTHON $ASSES_BED -b $bed -c $COMPOSIT_BED
-    echo $bed > /dev/null
-    popd
+    sleep 1s
+    gene=`echo $base_dir | rev | cut -d"/" -f1 | rev`
+    only_gene_bed=$base_dir/$gene.bed
+    echo $SGE -M $EMAIL -m a -l h_vmem=$h_vmem -l h_stack=$h_stack -b y -V -N validate_$gene -q $QUEUE -wd $base_dir -o $base_dir/logs -e $base_dir/logs $PYTHON $ASSES_BED -b $only_gene_bed -c $COMPOSIT_BED -t $REFSEQ_MAPPING
+    $SGE -M $EMAIL -m a -l h_vmem=$h_vmem -l h_stack=$h_stack -b y -V -N validate_$base -q $QUEUE -wd $base_dir -o $base_dir/logs -e $base_dir/logs $PYTHON $ASSES_BE\
+D -b $only_gene_bed -c $COMPOSIT_BED -t $REFSEQ_MAPPING
+    popd > /dev/null
 done
 
