@@ -1,5 +1,4 @@
-#!/dlmp/sandbox/cgslIS/rohan/Python-2.7.11/python
-
+#/usr/bin/python
 """
 coding sequeces to be assesed with transcript in
 composite bed
