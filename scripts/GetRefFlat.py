@@ -1,4 +1,4 @@
-#/dlmp/sandbox/cgslIS/rohan/Python-2.7.11/python
+#/usr/bin/python
 
 import subprocess
 import os 
