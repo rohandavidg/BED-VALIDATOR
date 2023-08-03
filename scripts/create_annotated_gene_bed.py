@@ -1,4 +1,4 @@
-#!/dlmp/sandbox/cgslIS/rohan/Python-2.7.11/python
+#!/usr/bin/python
 
 """
 This script validates only if an exon is listed in the
@@ -13,7 +13,7 @@ import subprocess
 import shutil
 
 outdir = os.getcwd()
-intersect_bed = '/usr/local/biotools/bedtools/2.20.1/bin/intersectBed'
+intersect_bed = 'intersectBed'
 
 
 def main(bed2):
