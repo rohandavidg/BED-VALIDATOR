@@ -1,4 +1,4 @@
-#!/dlmp/sandbox/cgslIS/rohan/Python-2.7.11/python
+#!/usr/bin/python
 
 """
 this script creates a composite bed file
@@ -14,7 +14,7 @@ from GetRefFlat import GetRefFlat
 import subprocess
 import shlex
 
-gtf_file = "/dlmp/sandbox/cgslIS/rohan/cgsl_code/bin/BED-VALIDATOR/files/Homo_sapiens.GRCh37.75.gtf.gz"
+gtf_file = "Homo_sapiens.GRCh37.75.gtf.gz"
 outdir = os.getcwd()
 
 def main():
